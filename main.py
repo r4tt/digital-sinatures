@@ -1,7 +1,5 @@
-from ecdsaModule import *
-from pandas import *
-
+from extension.EEA import eea
+from model.ecdsaModule import *
 
 if __name__ == '__main__':
-    pk = curve.g * 1
-    print(pk)
+    a, b, c = 1, 2, 3
