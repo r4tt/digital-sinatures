@@ -10,3 +10,7 @@ def createKey(E: Curve):
     d = random.randint(0, E.field.n)
     Q = P * d
     return d, PublicKey(E, P, E.field.n, Q)
+
+def xx():
+    i = random.randint(0, E.field.n)
+    return "ssfdd"

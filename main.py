@@ -1,26 +1,22 @@
-from model.ecdsaModule import *
-from usecase.CreateKey import createKey
-from usecase.CreateSignature import createSignature
-from usecase.VerifySignature import verifySignature
+from fastapi import FastAPI
 
-if __name__ == '__main__':
-    M = 123123718736132617326
+from model.ecdsaModule import curve
+from usecase.CreateKey import createKey, xx
 
-    d, publicKey = createKey(curve)
-    print("privateKey\n", d, "\n")
+app = FastAPI()
 
-    print("publicKey\n", publicKey, "\n")
-    signature = createSignature(
-        E=curve,
-        M=M,
-        publicKey=publicKey,
-        d=d,
-    )
-    print("signature\n", signature, "\n")
+@app.post("/api/v1/key/create")
+async def create_key():
+    priKey, pubKey = createKey(curve)
+    print(priKey, pubKey)
+    return pubKey
 
-    ss = verifySignature(
-        E=curve,
-        publicKey=publicKey,
-        signature=signature,
-    )
-    print("verify = ", ss)
+
+@app.post("/api/v1/signature/verify")
+async def verifySignature(name: str):
+    return {"message": f"Hello {name}"}
+
+
+@app.post("/api/v1/signature/create")
+async def createSignature(name: str):
+    return {"message": f"Hello {name}"}
