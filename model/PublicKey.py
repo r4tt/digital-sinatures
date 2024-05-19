@@ -1,5 +1,7 @@
+from tinyec.ec import Curve, Point
+
 class PublicKey:
-    def __init__(self, E, P, n, Q):
+    def __init__(self, E: Curve, P: Point, n, Q: Point):
         self.E = E
         self.P = P
         self.n = n

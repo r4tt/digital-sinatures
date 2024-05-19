@@ -3,22 +3,6 @@ from utils import is_valid_curve
 import utils as utils
 
 def make_curve(num_bits, num_curves=1): 
-    """
-    Description:
-    
-        Finds num_curves Barreto-Naehrig curves with a prime order that is at least 2^num_bits.
-    
-    Input:
-    
-        num_bits - number of bits for the prime order of the curve
-        num_curves - number of curves to find
-    
-    Output:
-    
-        curves - list of the first num_curves BN curves each of prime order at least 2^num_bits;
-                 each curve is represented as a tuple (q,t,r,k,D)
-    
-    """
     def P(y):
         x = Integer(y)
         return 36*pow(x,4) + 36*pow(x,3) + 24*pow(x,2) + 6*x + 1

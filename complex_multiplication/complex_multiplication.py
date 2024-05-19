@@ -1,45 +1,24 @@
-from sage.all import power_mod, primitive_root, is_square, hilbert_class_polynomial, is_prime,GF, EllipticCurve, kronecker, randint, Integer, Mod
+from sage.all import power_mod, primitive_root, is_square, hilbert_class_polynomial, is_prime,GF, EllipticCurve, kronecker, randint, Integer
 from utils import is_valid_curve
 
-def make_curve(q,t,r,k,D,debug=False):
-    """
-    Description:
-    
-        Finds the curve equation for the elliptic curve (q,t,r,k,D) using the Complex Multiplication method
-    
-    Input:
-    
-        q - size of prime field
-        t - trace of Frobenius
-        r - size of prime order subgroup
-        k - embedding degree
-        D - (negative) fundamental discriminant
-    
-    Output:
-    
-        E - elliptic curve over F_q with trace t,
-            a subgroup of order r with embedding degree k,
-            and fundamental discriminant D
-    
-    """
+def make_curve(q,t,r,k,D):
     assert is_valid_curve(q,t,r,k,D), 'Invalid input. No curve exists.' # check inputs
-    if debug:
-        print('Tested input')
+    print("---AAAAAAA---1----")
     poly = hilbert_class_polynomial(D) # compute hilbert class polynomial
-    if debug:
-        print('Computed Hilbert class polynomial')
-    check = False
-    j_inv = poly.any_root(GF(q)) # find j-invariant    
+    print("---AAAAAAA---2----")
+    j_inv = poly.any_root(GF(q)) # find j-invariant
+    print("---AAAAAAA---3----")
     orig_curve = EllipticCurve(GF(q), j=j_inv) # make a curve
+    print("---AAAAAAA---4----")
     E = orig_curve
     check = test_curve(q,t,r,k,D,E) # see if this is the right curve
-    twist = False
+    print("---BBBBBBBBB-------")
+    print(check)
     if not check: # not the right curve, use quadratic twist
         E = E.quadratic_twist()
+        """
         check = test_curve(q,t,r,k,D,E)
-        if check:
-            twist = True
-        else: # twist didnt work => j = 0 or 1728
+        if not check: # twist didnt work => j = 0 or 1728
             if j_inv == 0: # for j = 0, use sextic twists
                 prim = primitive_root(q)
                 i = 1
@@ -47,129 +26,24 @@ def make_curve(q,t,r,k,D,debug=False):
                     E = orig_curve.sextic_twist(power_mod(prim,i,q))
                     i+=1
             elif j_inv == 1728: # for j = 1728, use quartic twists
+                print("---CCCCCCCC----BEGIN---")
                 prim = primitive_root(q)
+                print("---CCCCCCCC----END---")
                 i = 1
                 while t != E.trace_of_frobenius() and i < 4:
                     E = orig_curve.quartic_twist(power_mod(prim,i,q))
                     i+=1
-            else: # twist didnt work and j != 0, 1728. this should never happen, so write input to a file for debugging
-                print('Error. Quadratic twist failed to find the correct curve with j != 0, 1728. Logging output to debug.txt') # this line should never be reached'
-                f = open('debug.txt', 'w')
-                f.write('Twist: ' + str(twist) + '\n')
-                f.write('q: ' + str(q) + '\n')
-                f.write('t: ' + str(t) + '\n')
-                f.write('r: ' + str(r) + '\n')
-                f.write('k: ' + str(k) + '\n')
-                f.write('D: ' + str(D) + '\n')
-                f.write('E: ' + str(E) + '\n')
-                f.write('orig_curve: ' + str(orig_curve))
-                f.close()
+            else:
                 return False
             check = test_curve(q,t,r,k,D,E)
-            twist = True
-    if not check: # didnt find a curve. this should never happen, so write input to a file for debugging
-        print('Error. Failed to find curve. Logging output to debug.txt')
-        f = open('debug.txt', 'w')
-        f.write('Twist: ' + str(twist) + '\n')
-        f.write('q: ' + str(q) + '\n')
-        f.write('t: ' + str(t) + '\n')
-        f.write('r: ' + str(r) + '\n')
-        f.write('k: ' + str(k) + '\n')
-        f.write('D: ' + str(D) + '\n')
-        f.write('E: ' + str(E) + '\n')
-        f.write('orig_curve: ' + str(orig_curve))
-        f.close()
+    print("---AAAAAAA---5----")
+    if not check:
         return False
+    """
+
     return E
 
-def small_A_twist(E):
-    """
-    Description:
-        
-        Finds a curve isogenous to E that has small A in the curve equation y^2 = x^3 + A*x + B
-    
-    Input:
-    
-        E - elliptic curve
-    
-    Output:
-    
-        E' - elliptic curve isogenous to E that has small A in the curve equation y^2 = x^3 + A*x + B
-    
-    """
-    a = E.ainvs()[3]
-    q = E.base_field().order()
-    a = power_mod(Integer(a), -1, q)
-    if kronecker(a,q) == -1:
-        b = 2
-        while 1:
-            b += 1
-            if kronecker(b, q) == 1:
-                continue
-            tmp = a * b % q
-            d = Mod(tmp, q).sqrt()
-            if kronecker(d, q) != 1:
-                continue
-            break
-    ainvs = [i for i in E.ainvs()]
-    ainvs[3]*= d**2
-    ainvs[4] *= d**3
-    return EllipticCurve(E.base_field(), ainvs)
-    
-def small_B_twist(E):
-    """
-    Description:
-        
-        Finds a curve isogenous to E that has small B in the curve equation y^2 = x^3 + A*x + B
-    
-    Input:
-    
-        E - elliptic curve
-    
-    Output:
-    
-        E' - elliptic curve isogenous to E that has small B in the curve equation y^2 = x^3 + A*x + B
-    
-    """
-    b = E.ainvs()[4]
-    q = E.base_field().order()
-    b = power_mod(Integer(b), -1, q)
-    d = 0
-    s = Mod(1,q)
-    bool = True
-    while bool:
-        try:
-            d = (s*b)
-            d = d.nth_root(3)
-            d = Integer(d)
-            bool = False
-        except ValueError as e:
-            s+=1 
-            pass
-    ainvs = [i for i in E.ainvs()]
-    ainvs[3] *= d**2
-    ainvs[4] *= d**3
-    return EllipticCurve(E.base_field(), ainvs)
-
-def test_curve(q,t,r,k,D,E): 
-    """
-    Description:
-    
-       Tests that E is an elliptic curve over F_q with trace t, a subgroup of order r with embedding degree k, and fundamental discriminant D
-    
-    Input:
-    
-        q - size of prime field
-        t - trace of Frobenius
-        r - size of prime order subgroup
-        k - embedding degree
-        D - (negative) fundamental discriminant
-    
-    Output:
-    
-        bool - true iff E is an elliptic curve over F_q with trace t, a subgroup of order r with embedding degree k, and fundamental discriminant D
-    
-    """    
+def test_curve(q,t,r,k,D,E):
     bool = True
     bool = bool and (power_mod(q, k, r) == 1) #q^k -1 ==0 mod r
     bool = bool and (E.trace_of_frobenius() == t)

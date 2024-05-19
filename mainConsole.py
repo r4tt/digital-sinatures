@@ -6,12 +6,12 @@ from usecase.VerifySignature import verifySignature
 if __name__ == '__main__':
     M = 123123718736132617326
 
-    d, publicKey = createKey(curve)
+    d, publicKey = createKey(BASECURVE)
     print("privateKey\n", d, "\n")
 
     print("publicKey\n", publicKey, "\n")
     signature = createSignature(
-        E=curve,
+        E=BASECURVE,
         M=M,
         publicKey=publicKey,
         d=d,
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     print("signature\n", signature, "\n")
 
     ss = verifySignature(
-        E=curve,
+        E=BASECURVE,
         publicKey=publicKey,
         signature=signature,
     )
