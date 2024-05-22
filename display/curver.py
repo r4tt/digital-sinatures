@@ -9,9 +9,8 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-class Curve:
-    def __init__(self, a, b, p, r):
-        self.a = a
-        self.b = b
-        self.p = p
-        self.r = r
+class Curve(BaseModel):
+    a: int
+    b: int
+    p: int
+    r: int

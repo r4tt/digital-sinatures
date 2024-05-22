@@ -1,9 +1,12 @@
 from http import HTTPStatus
 from typing import Annotated
-from uuid import UUID
+import random
 
+import cocks_pinch as cp
+import complex_multiplication as cm
+from display.create_curve_response import CreateCurveResponse
+from utils import print_curve, curve_to_string
 from fastapi import FastAPI, Depends, HTTPException
-from pydantic import BaseModel
 from requests import Session
 
 from database import InfraModels
@@ -82,3 +85,18 @@ async def verify_signature(request: VerifySignatureRequest, db: db_dependency):
             s = int(request.signature.s),
         ))
         return VerifySignatureResponse(check = check)
+
+@app.get("/api/v1/curve")
+async def create_curve(numBits: int):
+    k = random.randint(3, 10)
+    r, k, D = cp.gen_params_from_bits(numBits, k)
+    while (D < -20):
+        r, k, D = cp.gen_params_from_bits(numBits, k)
+    q, t, r, k, D = cp.run(r, k, D)
+    E = cm.make_curve(q, t, r, k, D)
+    print(E)
+    return CreateCurveResponse(
+        message = curve_to_string(q,t,k,r,D),
+        curve = str(E),
+        point = str(E.random_element()),
+    )

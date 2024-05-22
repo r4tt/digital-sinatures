@@ -3,17 +3,11 @@ from utils import is_valid_curve
 
 def make_curve(q,t,r,k,D):
     assert is_valid_curve(q,t,r,k,D), 'Invalid input. No curve exists.' # check inputs
-    print("---AAAAAAA---1----")
     poly = hilbert_class_polynomial(D) # compute hilbert class polynomial
-    print("---AAAAAAA---2----")
     j_inv = poly.any_root(GF(q)) # find j-invariant
-    print("---AAAAAAA---3----")
     orig_curve = EllipticCurve(GF(q), j=j_inv) # make a curve
-    print("---AAAAAAA---4----")
     E = orig_curve
     check = test_curve(q,t,r,k,D,E) # see if this is the right curve
-    print("---BBBBBBBBB-------")
-    print(check)
     if not check: # not the right curve, use quadratic twist
         E = E.quadratic_twist()
         """
