@@ -10,7 +10,8 @@ class Point:
         self.x = x
         self.y = y
 class Curve:
-    def __init__(self, a, b, p):
+    def __init__(self, a, b, p, r):
         self.a = a
         self.b = b
         self.p = p
+        self.r = r

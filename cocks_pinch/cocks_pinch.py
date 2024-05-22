@@ -111,47 +111,13 @@ def run(r,k,D,max_run_time=20):
     assert is_valid_curve(q,t,r,k,D), 'Invalid output'
     return q,t,r,k,D
 
-def gen_params_from_bits(num_bits,k): 
-    """
-    Description:
-    
-        Generates a prime r with num_bits bits and a fundamental discriminant D to use as input to the Cocks-Pinch method
-    
-    Input:
-        
-        num_bits - number of bits in r
-        k - embedding degree
-        
-    Output:
-        
-        r - prime such that r % k == 1 and r is num_bits bits long
-        k - embedding degree
-        D - (negative) fundamental discriminant where D is a square mod r
-    
-    """
+def gen_params_from_bits(num_bits,k):
     r = random_prime(2**num_bits, lbound=2**(num_bits-1))
     while not (r % k == 1 and utils.is_suitable_r(r)):
         r = random_prime(2**num_bits, lbound=2**(num_bits-1))
     return gen_params_from_r(r,k)
 
 def gen_params_from_r(r,k):
-    """
-    Description:
-    
-        Finds a fundamental discriminant D to use as input to the Cocks-Pinch method
-    
-    Input:
-    
-        r - prime such that r % k == 1
-        k - embedding degree  
-    
-    Output:
-        
-        r - prime such that r % k == 1
-        k - embedding degree
-        D - (negative) fundamental discriminant where D is a square mod r
-    
-    """
     D = -Integer(Mod(int(random()*(1000)),r))
     i = 0
     while not kronecker(D,r) == 1: # expected number of iterations of the while loop is 2
@@ -164,22 +130,6 @@ def gen_params_from_r(r,k):
 
 
 def test_promise(r,k,D):
-    """
-    Description:
-    
-        Tests that r,k,D is a valid input to the Cocks-Pinch method
-    
-    Input:
-    
-        r - prime
-        k - embedding degree    
-        D - (negative) funadmental discriminant
-    
-    Output:
-    
-        bool - true iff (r,k,D) is a valid input to the Cocks-Pinch method
-    
-    """
     bool = (kronecker(D,r) == 1) # D is a square mod r
     bool = bool and ( (r-1) % k ==0) # k | r-1
     bool = bool and (D == fundamental_discriminant(D)) # check that D is a fundamental discriminant

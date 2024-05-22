@@ -24,11 +24,6 @@ app = FastAPI()
 
 InfraModels.Base.metadata.create_all(bind=engine)
 
-class Users(BaseModel):
-    id: UUID
-    i: str
-    d: str
-
 def get_db():
     try:
         db = SessionLocal()
@@ -53,18 +48,27 @@ async def create_key(request: CreateKeyRequest, db: db_dependency):
         db.commit()
         return getCreateKeyResponse(pubKey, priKey)
 
-
 @app.post("/api/v1/signature/create", status_code=HTTPStatus.CREATED.value)
 async def create_signature(request: CreateSignatureRequest, db: db_dependency):
     user = db.query(InfraModels.User).filter(InfraModels.User.id == request.userId).first()
     if user is None:
         raise HTTPException(status_code = HTTPStatus.NOT_FOUND,detail='user does not exist')
-    else:
-        signature = createSignature(hash(request.M), BASECURVE, int(user.i), int(user.d))
-        return CreateSignatureResponse(
-            M = request.M,
-            signature = Signature(r = signature.r, s = signature.s),
-        )
+    check = db.query(InfraModels.Signature)\
+            .filter(InfraModels.Signature.user_id == request.userId) \
+            .filter(InfraModels.Signature.document == hash(request.M))
+    if check.count() != 0:
+        raise HTTPException(status_code = HTTPStatus.CONFLICT,detail='user already sign document')
+    signature = createSignature(hash(request.M), BASECURVE, int(user.i), int(user.d))
+    infra_signature = InfraModels.Signature()
+    infra_signature.user_id = request.userId
+    infra_signature.document = str(hash(request.M))
+    db.add(infra_signature)
+    db.commit()
+
+    return CreateSignatureResponse(
+        M = request.M,
+        signature = Signature(r = signature.r, s = signature.s),
+    )
 
 @app.post("/api/v1/signature/verify",status_code=200)
 async def verify_signature(request: VerifySignatureRequest, db: db_dependency):

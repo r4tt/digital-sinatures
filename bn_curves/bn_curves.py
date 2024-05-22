@@ -1,4 +1,4 @@
-from sage.all import random, power_mod, primitive_root, Integer, random_prime, is_prime, kronecker, squarefree_part, is_square, Mod, fundamental_discriminant, sqrt, log, floor
+from sage.all import random, power_mod, primitive_root, Integer, random_prime, is_prime, kronecker, squarefree_part, is_square, fundamental_discriminant, sqrt, log, floor
 from utils import is_valid_curve
 import utils as utils
 
