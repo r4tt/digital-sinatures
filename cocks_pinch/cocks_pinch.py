@@ -5,21 +5,6 @@ from utils import is_valid_curve
 import utils as utils
 
 def find_element_of_order(k,r):
-    """
-    Description:
-    
-        Finds a random element of order k in Z_r^*
-    
-    Input:
-    
-        k - integer such that r % k == 1
-        r - prime
-    
-    Output:
-    
-        h - element of order k in Z_r^*
-    
-    """
     assert r % k == 1
     h = 0
     def order(h,k,p):
@@ -35,27 +20,7 @@ def find_element_of_order(k,r):
     return h
 
 
-def method(r,k,D,max_trials=10000, g=0): 
-    """
-    Description:
-        
-        Run the Cocks-Pinch method to find an elliptic curve
-    
-    Input:
-    
-        r - prime
-        k - embedding degree, r % k == 1
-        D - (negative) fundamental discriminant where D is a square mod r
-        max_trials - the number of integers q to test for primality in the CP method
-        g - an element of order k in Z_r^*
-
-    Output:
-    
-        (q,t) - tuple where q is a prime and t is chosen such that there exists
-                an elliptic curve E over F_q with trace t, and r | q+1-t;
-                if the algorithm fails to find (q,t), it will return (0,0)
-    
-    """
+def method(r,k,D,max_trials=10000, g=0):
     assert test_promise(r,k,D), 'Invalid inputs'
     if g != 0:
         assert power_mod(g,k,r) == 1, 'Invalid inputs'
@@ -85,23 +50,6 @@ def method(r,k,D,max_trials=10000, g=0):
 
 @utils.filter_decorator
 def run(r,k,D,max_run_time=20):
-    """
-    Description:
-    
-        Runs the Cocks-Pinch method multiple times until a valid curve is found
-    
-    Input:
-    
-        r - prime
-        k - embedding degree, r % k == 1
-        D - (negative) fundamental discriminant where D is a square mod r
-        max_run_time - maximum runtime of the function, in seconds
-
-    Output:
-        
-        (q,t,r,k,D) - elliptic curve
-    
-    """
     assert test_promise(r,k,D), 'Invalid inputs'
     q = 0
     t = 0
