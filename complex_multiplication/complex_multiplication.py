@@ -10,31 +10,6 @@ def make_curve(q,t,r,k,D):
     check = test_curve(q,t,r,k,D,E) # see if this is the right curve
     if not check: # not the right curve, use quadratic twist
         E = E.quadratic_twist()
-        """
-        check = test_curve(q,t,r,k,D,E)
-        if not check: # twist didnt work => j = 0 or 1728
-            if j_inv == 0: # for j = 0, use sextic twists
-                prim = primitive_root(q)
-                i = 1
-                while t != E.trace_of_frobenius() and i < 6:
-                    E = orig_curve.sextic_twist(power_mod(prim,i,q))
-                    i+=1
-            elif j_inv == 1728: # for j = 1728, use quartic twists
-                print("---CCCCCCCC----BEGIN---")
-                prim = primitive_root(q)
-                print("---CCCCCCCC----END---")
-                i = 1
-                while t != E.trace_of_frobenius() and i < 4:
-                    E = orig_curve.quartic_twist(power_mod(prim,i,q))
-                    i+=1
-            else:
-                return False
-            check = test_curve(q,t,r,k,D,E)
-    print("---AAAAAAA---5----")
-    if not check:
-        return False
-    """
-
     return E
 
 def test_curve(q,t,r,k,D,E):
